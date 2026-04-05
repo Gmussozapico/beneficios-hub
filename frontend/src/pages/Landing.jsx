@@ -124,7 +124,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              ¿Por qué usar BeneficiosHub?
+              ¿Por qué usar Perksly?
             </h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">
               Dejamos de perder descuentos porque simplemente no los recordamos.
@@ -229,9 +229,9 @@ export default function Landing() {
             <div className="w-7 h-7 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center">
               <Sparkles className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-bold text-white">BeneficiosHub</span>
+            <span className="font-bold text-white">Perksly</span>
           </div>
-          <p className="text-sm">© {new Date().getFullYear()} BeneficiosHub. Hecho con ♥ en Chile.</p>
+          <p className="text-sm">© {new Date().getFullYear()} Perksly. Hecho con ♥ en Chile.</p>
         </div>
       </footer>
     </div>

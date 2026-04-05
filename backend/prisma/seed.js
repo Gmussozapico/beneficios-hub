@@ -6,6 +6,9 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding database...');
 
+  // Clean benefits on re-seed
+  await prisma.benefit.deleteMany({});
+
   // Create Categories
   const bancosCategory = await prisma.providerCategory.upsert({
     where: { slug: 'banco' },
@@ -44,48 +47,56 @@ async function main() {
       name: 'BCI',
       slug: 'bci',
       description: 'Banco de Crédito e Inversiones - tarjetas y beneficios exclusivos',
+      logoUrl: 'https://logo.clearbit.com/bci.cl',
       categoryId: bancosCategory.id,
     },
     {
       name: 'Santander',
       slug: 'santander',
       description: 'Banco Santander Chile - beneficios para tarjetahabientes',
+      logoUrl: 'https://logo.clearbit.com/santander.cl',
       categoryId: bancosCategory.id,
     },
     {
       name: 'Banco de Chile',
       slug: 'banco-de-chile',
       description: 'Banco de Chile - Club de Beneficios exclusivos',
+      logoUrl: 'https://logo.clearbit.com/bancochile.cl',
       categoryId: bancosCategory.id,
     },
     {
       name: 'Itaú',
       slug: 'itau',
       description: 'Banco Itaú Chile - descuentos y promociones',
+      logoUrl: 'https://logo.clearbit.com/itau.cl',
       categoryId: bancosCategory.id,
     },
     {
       name: 'Scotiabank',
       slug: 'scotiabank',
       description: 'Scotiabank Chile - beneficios para clientes',
+      logoUrl: 'https://logo.clearbit.com/scotiabank.cl',
       categoryId: bancosCategory.id,
     },
     {
       name: 'Banco Security',
       slug: 'banco-security',
       description: 'Banco Security - beneficios exclusivos para clientes',
+      logoUrl: 'https://logo.clearbit.com/security.cl',
       categoryId: bancosCategory.id,
     },
     {
       name: 'Banco Falabella',
       slug: 'banco-falabella',
       description: 'Banco Falabella - CMR Visa y beneficios en el ecosistema Falabella',
+      logoUrl: 'https://logo.clearbit.com/bancofalabella.cl',
       categoryId: bancosCategory.id,
     },
     {
       name: 'BancoEstado',
       slug: 'banco-estado',
       description: 'BancoEstado - beneficios para cuenta RUT y tarjetas',
+      logoUrl: 'https://logo.clearbit.com/bancoestado.cl',
       categoryId: bancosCategory.id,
     },
     // Telefonía
@@ -93,24 +104,28 @@ async function main() {
       name: 'Entel',
       slug: 'entel',
       description: 'Entel - beneficios exclusivos para clientes Entel',
+      logoUrl: 'https://logo.clearbit.com/entel.cl',
       categoryId: telefoniaCategory.id,
     },
     {
       name: 'Movistar',
       slug: 'movistar',
       description: 'Movistar Chile - descuentos y beneficios para clientes',
+      logoUrl: 'https://logo.clearbit.com/movistar.cl',
       categoryId: telefoniaCategory.id,
     },
     {
       name: 'Claro',
       slug: 'claro',
       description: 'Claro Chile - Club de Beneficios para clientes',
+      logoUrl: 'https://logo.clearbit.com/claro.cl',
       categoryId: telefoniaCategory.id,
     },
     {
       name: 'WOM',
       slug: 'wom',
       description: 'WOM Chile - beneficios para clientes WOM',
+      logoUrl: 'https://logo.clearbit.com/wom.cl',
       categoryId: telefoniaCategory.id,
     },
     // Retail
@@ -118,18 +133,21 @@ async function main() {
       name: 'CMR Falabella',
       slug: 'cmr-falabella',
       description: 'Tarjeta CMR Falabella - descuentos en Falabella y partners',
+      logoUrl: 'https://logo.clearbit.com/falabella.com',
       categoryId: retailCategory.id,
     },
     {
       name: 'Ripley Card',
       slug: 'ripley-card',
       description: 'Tarjeta Ripley - beneficios en tiendas Ripley y partners',
+      logoUrl: 'https://logo.clearbit.com/ripley.cl',
       categoryId: retailCategory.id,
     },
     {
       name: 'La Polar Card',
       slug: 'la-polar-card',
       description: 'Tarjeta La Polar - descuentos y cuotas sin interés',
+      logoUrl: 'https://logo.clearbit.com/lapolar.cl',
       categoryId: retailCategory.id,
     },
     // Seguros
@@ -137,6 +155,7 @@ async function main() {
       name: 'MetLife',
       slug: 'metlife',
       description: 'MetLife Chile - seguros y beneficios de salud y bienestar',
+      logoUrl: 'https://logo.clearbit.com/metlife.cl',
       categoryId: segurosCategory.id,
     },
   ];
@@ -145,7 +164,7 @@ async function main() {
   for (const provider of providers) {
     const created = await prisma.provider.upsert({
       where: { slug: provider.slug },
-      update: {},
+      update: { logoUrl: provider.logoUrl },
       create: provider,
     });
     createdProviders[provider.slug] = created;
@@ -162,6 +181,7 @@ async function main() {
       category: 'Gastronomía',
       providerId: createdProviders['bci'].id,
       terms: 'Válido de lunes a domingo en restaurantes participantes. Máximo $15.000 de descuento por transacción.',
+      validDays: [],
     },
     {
       title: '15% dcto en farmacias Cruz Verde',
@@ -171,6 +191,7 @@ async function main() {
       category: 'Salud',
       providerId: createdProviders['bci'].id,
       terms: 'Válido en productos de venta libre. No incluye medicamentos con receta.',
+      validDays: [],
     },
     {
       title: '2x1 en cines Cinemark',
@@ -180,6 +201,7 @@ async function main() {
       category: 'Entretenimiento',
       providerId: createdProviders['bci'].id,
       terms: 'Válido de lunes a jueves. Excluye estrenos y funciones especiales.',
+      validDays: [1, 2, 3, 4],
     },
 
     // Santander Benefits
@@ -191,6 +213,7 @@ async function main() {
       category: 'Gastronomía',
       providerId: createdProviders['santander'].id,
       terms: 'Mínimo de pedido $8.000. Máximo 4 usos por mes.',
+      validDays: [],
     },
     {
       title: '30% dcto en hoteles booking.com',
@@ -200,6 +223,7 @@ async function main() {
       category: 'Viajes',
       providerId: createdProviders['santander'].id,
       terms: 'Descuento aplicable a hoteles seleccionados. Reserva con al menos 7 días de anticipación.',
+      validDays: [],
     },
     {
       title: '$5.000 en compras de gasolina',
@@ -209,6 +233,7 @@ async function main() {
       category: 'Combustible',
       providerId: createdProviders['santander'].id,
       terms: 'Aplica en estaciones COPEC seleccionadas. Máximo 1 vez por mes.',
+      validDays: [],
     },
 
     // Banco de Chile Benefits
@@ -220,6 +245,7 @@ async function main() {
       category: 'Viajes',
       providerId: createdProviders['banco-de-chile'].id,
       terms: 'Válido en compras en latamairlines.com. No aplica a impuestos ni tasas.',
+      validDays: [],
     },
     {
       title: 'Netflix 3 meses $0',
@@ -229,6 +255,7 @@ async function main() {
       category: 'Streaming',
       providerId: createdProviders['banco-de-chile'].id,
       terms: 'Solo para nuevos suscriptores de Netflix. Aplica plan estándar.',
+      validDays: [],
     },
     {
       title: '15% dcto en Falabella.com',
@@ -238,6 +265,7 @@ async function main() {
       category: 'Compras',
       providerId: createdProviders['banco-de-chile'].id,
       terms: 'Aplica en compras mínimas de $30.000. Excluye tecnología y electrodomésticos.',
+      validDays: [],
     },
 
     // Itaú Benefits
@@ -249,6 +277,7 @@ async function main() {
       category: 'Gastronomía',
       providerId: createdProviders['itau'].id,
       terms: 'Máximo $3.000 de descuento por pedido. Hasta 3 usos por semana.',
+      validDays: [],
     },
     {
       title: '$10.000 en Apple Store',
@@ -258,6 +287,7 @@ async function main() {
       category: 'Tecnología',
       providerId: createdProviders['itau'].id,
       terms: 'Compra mínima de $100.000. Solo en Apple Store física en Chile.',
+      validDays: [],
     },
     {
       title: '2x1 en Teatro Municipal',
@@ -267,6 +297,7 @@ async function main() {
       category: 'Entretenimiento',
       providerId: createdProviders['itau'].id,
       terms: 'Válido para funciones seleccionadas. Compra en taquilla o online.',
+      validDays: [],
     },
 
     // Scotiabank Benefits
@@ -278,6 +309,7 @@ async function main() {
       category: 'Deporte',
       providerId: createdProviders['scotiabank'].id,
       terms: 'Aplica en membresías mensuales y anuales.',
+      validDays: [],
     },
     {
       title: '15% dcto en viajes internacionales',
@@ -287,6 +319,7 @@ async function main() {
       category: 'Viajes',
       providerId: createdProviders['scotiabank'].id,
       terms: 'Válido en agencias de viaje partner. Consultar disponibilidad.',
+      validDays: [],
     },
 
     // Banco Security Benefits
@@ -298,6 +331,7 @@ async function main() {
       category: 'Gastronomía',
       providerId: createdProviders['banco-security'].id,
       terms: 'Válido en más de 200 restaurantes a nivel nacional.',
+      validDays: [],
     },
     {
       title: 'Acceso VIP sala aeropuerto',
@@ -307,6 +341,7 @@ async function main() {
       category: 'Viajes',
       providerId: createdProviders['banco-security'].id,
       terms: 'Aplica en tarjetas de crédito Black y Platinum. 4 accesos gratuitos por año.',
+      validDays: [],
     },
 
     // Banco Falabella Benefits
@@ -318,6 +353,7 @@ async function main() {
       category: 'Compras',
       providerId: createdProviders['banco-falabella'].id,
       terms: 'Aplica en tienda física y online. Excluye promociones ya rebajadas.',
+      validDays: [],
     },
     {
       title: 'Cuotas sin interés en Linio',
@@ -327,6 +363,7 @@ async function main() {
       category: 'Compras',
       providerId: createdProviders['banco-falabella'].id,
       terms: 'Aplica en productos seleccionados de Linio. Monto mínimo $20.000.',
+      validDays: [],
     },
     {
       title: '20% dcto en Viajes Falabella',
@@ -336,6 +373,7 @@ async function main() {
       category: 'Viajes',
       providerId: createdProviders['banco-falabella'].id,
       terms: 'Válido en paquetes completos (vuelo + hotel).',
+      validDays: [],
     },
 
     // BancoEstado Benefits
@@ -347,6 +385,7 @@ async function main() {
       category: 'Compras',
       providerId: createdProviders['banco-estado'].id,
       terms: 'Aplica en más de 500 comercios adheridos en todo Chile.',
+      validDays: [],
     },
     {
       title: 'Seguro de vida gratuito',
@@ -356,6 +395,7 @@ async function main() {
       category: 'Seguros',
       providerId: createdProviders['banco-estado'].id,
       terms: 'Aplica para clientes con cuenta corriente activa. Cobertura de UF 50.',
+      validDays: [],
     },
 
     // Entel Benefits
@@ -367,6 +407,7 @@ async function main() {
       category: 'Streaming',
       providerId: createdProviders['entel'].id,
       terms: 'Descuento aplicado directamente en tu boleta Entel.',
+      validDays: [],
     },
     {
       title: 'Disney+ incluido',
@@ -376,6 +417,7 @@ async function main() {
       category: 'Streaming',
       providerId: createdProviders['entel'].id,
       terms: 'Aplica en planes Entel desde $14.990/mes.',
+      validDays: [],
     },
     {
       title: '30% dcto en accesorios Entel',
@@ -385,6 +427,7 @@ async function main() {
       category: 'Tecnología',
       providerId: createdProviders['entel'].id,
       terms: 'Aplica en fundas, cargadores, audífonos y más.',
+      validDays: [],
     },
 
     // Movistar Benefits
@@ -396,6 +439,7 @@ async function main() {
       category: 'Streaming',
       providerId: createdProviders['movistar'].id,
       terms: 'Aplica en planes Movistar desde $12.990/mes. Activa en la app.',
+      validDays: [],
     },
     {
       title: '25% dcto en Samsung Store',
@@ -405,6 +449,7 @@ async function main() {
       category: 'Tecnología',
       providerId: createdProviders['movistar'].id,
       terms: 'Válido en accesorios y wearables Samsung. Presenta tu número Movistar.',
+      validDays: [],
     },
     {
       title: 'Roaming gratis en Latinoamérica',
@@ -414,6 +459,7 @@ async function main() {
       category: 'Viajes',
       providerId: createdProviders['movistar'].id,
       terms: 'Aplica en planes Full desde $18.990/mes. Consultar países participantes.',
+      validDays: [],
     },
 
     // Claro Benefits
@@ -425,6 +471,7 @@ async function main() {
       category: 'Streaming',
       providerId: createdProviders['claro'].id,
       terms: 'Aplica en planes Claro desde $15.990/mes.',
+      validDays: [],
     },
     {
       title: '20% dcto en restaurantes',
@@ -434,6 +481,7 @@ async function main() {
       category: 'Gastronomía',
       providerId: createdProviders['claro'].id,
       terms: 'Válido en restaurantes adheridos. Mostrar QR en app Claro.',
+      validDays: [],
     },
 
     // WOM Benefits
@@ -445,6 +493,7 @@ async function main() {
       category: 'Conectividad',
       providerId: createdProviders['wom'].id,
       terms: 'Velocidades reducidas después de 30GB de uso mensual.',
+      validDays: [],
     },
     {
       title: '50% dcto primer mes',
@@ -454,6 +503,7 @@ async function main() {
       category: 'Telefonía',
       providerId: createdProviders['wom'].id,
       terms: 'Solo para nuevos clientes WOM. Portabilidad numérica requerida.',
+      validDays: [],
     },
 
     // CMR Falabella Benefits
@@ -465,6 +515,7 @@ async function main() {
       category: 'Compras',
       providerId: createdProviders['cmr-falabella'].id,
       terms: 'Válido solo los días martes en tiendas físicas y online.',
+      validDays: [2],
     },
     {
       title: 'Puntos CMR dobles en combustible',
@@ -474,6 +525,7 @@ async function main() {
       category: 'Combustible',
       providerId: createdProviders['cmr-falabella'].id,
       terms: 'Aplica en estaciones de servicio Falabella y afiliadas.',
+      validDays: [],
     },
 
     // Ripley Card Benefits
@@ -485,6 +537,7 @@ async function main() {
       category: 'Compras',
       providerId: createdProviders['ripley-card'].id,
       terms: 'No acumulable con otras promociones. Excluye electrónica.',
+      validDays: [],
     },
     {
       title: 'Seguros de viaje gratis',
@@ -494,6 +547,7 @@ async function main() {
       category: 'Seguros',
       providerId: createdProviders['ripley-card'].id,
       terms: 'Cobertura hasta USD 50.000. Aplica en compras de pasajes aéreos.',
+      validDays: [],
     },
 
     // La Polar Benefits
@@ -505,6 +559,7 @@ async function main() {
       category: 'Moda',
       providerId: createdProviders['la-polar-card'].id,
       terms: 'Válido en temporadas regulares. No aplica en liquidación.',
+      validDays: [],
     },
     {
       title: '24 cuotas sin interés',
@@ -514,6 +569,7 @@ async function main() {
       category: 'Compras',
       providerId: createdProviders['la-polar-card'].id,
       terms: 'Aplica en compras superiores a $30.000.',
+      validDays: [],
     },
 
     // MetLife Benefits
@@ -525,6 +581,7 @@ async function main() {
       category: 'Salud',
       providerId: createdProviders['metlife'].id,
       terms: 'Red de más de 300 dentistas a nivel nacional. Presenta tu póliza MetLife.',
+      validDays: [],
     },
     {
       title: 'Telemedicina gratis',
@@ -534,6 +591,7 @@ async function main() {
       category: 'Salud',
       providerId: createdProviders['metlife'].id,
       terms: 'Disponible 24/7. Aplica para titular y cargas familiares.',
+      validDays: [],
     },
     {
       title: '20% dcto en ópticas',
@@ -543,6 +601,7 @@ async function main() {
       category: 'Salud',
       providerId: createdProviders['metlife'].id,
       terms: 'Válido en ópticas Alain Afflelou y participantes.',
+      validDays: [],
     },
   ];
 
@@ -553,10 +612,10 @@ async function main() {
   // Create demo user
   const hashedPassword = await bcrypt.hash('demo1234', 10);
   await prisma.user.upsert({
-    where: { email: 'demo@beneficioshub.cl' },
+    where: { email: 'demo@perksly.app' },
     update: {},
     create: {
-      email: 'demo@beneficioshub.cl',
+      email: 'demo@perksly.app',
       password: hashedPassword,
       name: 'Usuario Demo',
     },

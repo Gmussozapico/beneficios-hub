@@ -91,7 +91,7 @@ router.delete('/providers/:providerId', async (req, res) => {
 // GET /api/user/benefits
 router.get('/benefits', async (req, res) => {
   try {
-    const { category, type, search } = req.query;
+    const { category, type, search, dayOfWeek } = req.query;
 
     // Get user's provider IDs
     const userProviders = await prisma.userProvider.findMany({
@@ -119,7 +119,7 @@ router.get('/benefits', async (req, res) => {
       ];
     }
 
-    const benefits = await prisma.benefit.findMany({
+    let benefits = await prisma.benefit.findMany({
       where,
       include: {
         provider: {
@@ -128,6 +128,11 @@ router.get('/benefits', async (req, res) => {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    if (dayOfWeek !== undefined && dayOfWeek !== '') {
+      const day = parseInt(dayOfWeek, 10);
+      benefits = benefits.filter(b => b.validDays.length === 0 || b.validDays.includes(day));
+    }
 
     res.json(benefits);
   } catch (error) {

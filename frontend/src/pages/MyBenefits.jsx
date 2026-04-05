@@ -12,6 +12,18 @@ const BENEFIT_TYPES = [
   { value: 'SPECIAL', label: 'Especial' },
 ];
 
+const DAYS = [
+  { value: -1, label: 'Todos' },
+  { value: 0, label: 'Dom' },
+  { value: 1, label: 'Lun' },
+  { value: 2, label: 'Mar' },
+  { value: 3, label: 'Mié' },
+  { value: 4, label: 'Jue' },
+  { value: 5, label: 'Vie' },
+  { value: 6, label: 'Sáb' },
+];
+const TODAY = new Date().getDay();
+
 export default function MyBenefits() {
   const [benefits, setBenefits] = useState([]);
   const [filtered, setFiltered] = useState([]);
@@ -19,6 +31,7 @@ export default function MyBenefits() {
   const [search, setSearch] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedDay, setSelectedDay] = useState(-1);
   const [categories, setCategories] = useState([]);
   const [hasProviders, setHasProviders] = useState(true);
 
@@ -68,16 +81,21 @@ export default function MyBenefits() {
       result = result.filter((b) => b.category === selectedCategory);
     }
 
+    if (selectedDay >= 0) {
+      result = result.filter(b => b.validDays.length === 0 || b.validDays.includes(selectedDay));
+    }
+
     setFiltered(result);
-  }, [search, selectedType, selectedCategory, benefits]);
+  }, [search, selectedType, selectedCategory, selectedDay, benefits]);
 
   const clearFilters = () => {
     setSearch('');
     setSelectedType('');
     setSelectedCategory('');
+    setSelectedDay(-1);
   };
 
-  const hasFilters = search || selectedType || selectedCategory;
+  const hasFilters = search || selectedType || selectedCategory || selectedDay >= 0;
 
   if (loading) {
     return (
@@ -132,6 +150,25 @@ export default function MyBenefits() {
       {/* Has providers */}
       {hasProviders && (
         <>
+          {/* Day of week tabs */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 mb-5">
+            {DAYS.map((d) => (
+              <button
+                key={d.value}
+                onClick={() => setSelectedDay(d.value)}
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  selectedDay === d.value
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : d.value === TODAY
+                    ? 'bg-indigo-50 text-indigo-600 border border-indigo-200'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {d.value === TODAY && d.value >= 0 ? `${d.label} ✦` : d.label}
+              </button>
+            ))}
+          </div>
+
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">

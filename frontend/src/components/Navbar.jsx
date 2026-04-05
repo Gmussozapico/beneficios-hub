@@ -33,7 +33,7 @@ export default function Navbar() {
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-gray-900 text-lg">
-              Beneficios<span className="text-gradient">Hub</span>
+              Perks<span className="text-gradient">ly</span>
             </span>
           </Link>
 

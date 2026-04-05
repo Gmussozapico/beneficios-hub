@@ -5,6 +5,22 @@ import { api } from '../context/AuthContext';
 import BenefitCard from '../components/BenefitCard';
 import { LayoutGrid, Star, Compass, ArrowRight, Sparkles, TrendingUp, Tag } from 'lucide-react';
 
+const CATEGORY_EMOJI = {
+  'Gastronomía': '☕',
+  'Entretenimiento': '🎬',
+  'Viajes': '✈️',
+  'Compras': '🛍️',
+  'Salud': '💊',
+  'Streaming': '🎵',
+  'Deporte': '🏋️',
+  'Tecnología': '💻',
+  'Combustible': '⛽',
+  'Moda': '👗',
+  'Seguros': '🛡️',
+  'Telefonía': '📱',
+  'Conectividad': '🌐',
+};
+
 function StatCard({ icon: Icon, label, value, color }) {
   return (
     <div className="card p-6">
@@ -24,18 +40,32 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ totalBenefits: 0, totalProviders: 0, categoriesCount: 0 });
   const [recentBenefits, setRecentBenefits] = useState([]);
   const [userProviders, setUserProviders] = useState([]);
+  const [todayBenefits, setTodayBenefits] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadDashboardData = useCallback(async () => {
     try {
-      const [statsRes, benefitsRes, providersRes] = await Promise.all([
+      const todayDay = new Date().getDay();
+      const [statsRes, benefitsRes, providersRes, todayBenefitsRes] = await Promise.all([
         api.get('/api/user/stats'),
         api.get('/api/user/benefits'),
         api.get('/api/user/providers'),
+        api.get(`/api/user/benefits?dayOfWeek=${todayDay}`),
       ]);
       setStats(statsRes.data);
       setRecentBenefits(benefitsRes.data.slice(0, 6));
       setUserProviders(providersRes.data);
+
+      // Pick up to 4 from different categories
+      const seenCategories = new Set();
+      const recs = [];
+      for (const b of todayBenefitsRes.data) {
+        if (!seenCategories.has(b.category) && recs.length < 4) {
+          seenCategories.add(b.category);
+          recs.push(b);
+        }
+      }
+      setTodayBenefits(recs);
     } catch (err) {
       console.error(err);
     } finally {
@@ -105,6 +135,35 @@ export default function Dashboard() {
           color="bg-gradient-to-br from-purple-500 to-purple-600"
         />
       </div>
+
+      {/* Today's recommendations */}
+      {hasProviders && todayBenefits.length > 0 && (
+        <div className="mb-10">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Beneficios para hoy</h2>
+              <p className="text-xs text-gray-400">{['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][new Date().getDay()]}</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {todayBenefits.map((benefit) => (
+              <div key={benefit.id} className="card p-4 hover:shadow-md transition-all border-l-4 border-amber-400">
+                <div className="flex items-start justify-between mb-2">
+                  <span className="text-2xl">{CATEGORY_EMOJI[benefit.category] || '✨'}</span>
+                  <span className="text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 px-2.5 py-1 rounded-full">
+                    {benefit.discount}
+                  </span>
+                </div>
+                <p className="font-semibold text-gray-900 text-sm leading-tight mb-1 line-clamp-2">{benefit.title}</p>
+                <p className="text-xs text-gray-400">{benefit.provider?.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* No providers CTA */}
       {!hasProviders && (
