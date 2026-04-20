@@ -96,8 +96,11 @@ User            — id, email, password, name, createdAt, updatedAt
 ProviderCategory — id, name, slug, icon (emoji)
 Provider        — id, name, slug, description, logoUrl, categoryId
 Benefit         — id, title, description, discount, type, category, providerId,
+                  merchant?, location?, minPurchase?, maxDiscount?, url?,
                   validUntil?, terms?, imageUrl?, isActive, validDays Int[], createdAt
 UserProvider    — id, userId, providerId, addedAt  [unique: userId+providerId]
+BenefitUsage    — id, userId, benefitId, usedAt, savedAmount?  (registro de usos)
+UserFavorite    — id, userId, benefitId, addedAt  [unique: userId+benefitId]
 ```
 
 **`validDays`**: array de enteros (0=Dom, 1=Lun, … 6=Sáb). Array vacío = válido todos los días.
@@ -133,8 +136,13 @@ UserProvider    — id, userId, providerId, addedAt  [unique: userId+providerId]
 | GET | `/providers` | Proveedores del usuario |
 | POST | `/providers` | Body: `{providerId}` |
 | DELETE | `/providers/:providerId` | — |
-| GET | `/benefits` | Filtros: `category`, `type`, `search`, `dayOfWeek` (0-6) |
-| GET | `/stats` | `{totalBenefits, totalProviders, categoriesCount}` |
+| GET | `/benefits` | Filtros: `category`, `type`, `search` (incluye merchant), `dayOfWeek` (0-6) |
+| GET | `/stats` | `{totalBenefits, totalProviders, categoriesCount, totalSaved, totalUsages}` |
+| POST | `/benefits/:benefitId/use` | Body: `{savedAmount?}` — registra uso |
+| GET | `/usages` | Últimos 20 usos registrados |
+| GET | `/favorites` | Lista de beneficios favoritos |
+| POST | `/favorites/:benefitId` | Agrega a favoritos |
+| DELETE | `/favorites/:benefitId` | Quita de favoritos |
 
 ---
 
@@ -148,7 +156,7 @@ UserProvider    — id, userId, providerId, addedAt  [unique: userId+providerId]
 - Retail: CMR Falabella, Ripley Card, La Polar Card
 - Seguros: MetLife
 
-**~120 beneficios** en 13 categorías específicas:
+**~200 beneficios reales** (basados en webs oficiales) con campos merchant, minPurchase, maxDiscount, validDays. En 13 categorías:
 
 | Categoría | Emoji | Descripción |
 |---|---|---|
@@ -264,3 +272,4 @@ cd .. && ./start.sh
 | 2026-04-05 | Rename a **Perksly**, logos proveedores, favicon SVG, filtros por día de semana, recomendación diaria en Dashboard |
 | 2026-04-05 | Fix SPA 404: `serve -s`, logos → Google Favicon API |
 | 2026-04-05 | ~120 beneficios (era 40), 13 categorías específicas (Café, Cine, Moda, etc.), vista por secciones en MyBenefits |
+| 2026-04-19 | Sprint 1-4: schema extendido (merchant, minPurchase, maxDiscount, url, BenefitUsage, UserFavorite), ~200 beneficios reales, favoritos ⭐, "Ya lo usé" + ahorro registrado, chips contextuales (Hoy/Fin de semana), búsqueda por local, onboarding wizard |

@@ -19,6 +19,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   providers UserProvider[]
+  usages    BenefitUsage[]
+  favorites UserFavorite[]
 }
 
 model ProviderCategory {
@@ -50,12 +52,20 @@ model Benefit {
   category    String
   provider    Provider @relation(fields: [providerId], references: [id])
   providerId  String
+  merchant    String?   // specific merchant name (e.g. "Starbucks", "Cinemark")
+  location    String?   // city or region restriction
+  minPurchase Int?      // minimum purchase amount in CLP
+  maxDiscount Int?      // maximum discount cap in CLP
+  url         String?   // link to offer details
   validUntil  DateTime?
   terms       String?
   imageUrl    String?
   isActive    Boolean  @default(true)
-  validDays   Int[]    // days: 0=Sun 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat; empty=all days
+  validDays   Int[]    // 0=Sun 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat; empty=all days
   createdAt   DateTime @default(now())
+
+  usages    BenefitUsage[]
+  favorites UserFavorite[]
 }
 
 model UserProvider {
@@ -67,4 +77,25 @@ model UserProvider {
   addedAt    DateTime @default(now())
 
   @@unique([userId, providerId])
+}
+
+model BenefitUsage {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  benefit     Benefit  @relation(fields: [benefitId], references: [id], onDelete: Cascade)
+  benefitId   String
+  usedAt      DateTime @default(now())
+  savedAmount Int?     // amount saved in CLP (optional, entered by user)
+}
+
+model UserFavorite {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  benefit   Benefit  @relation(fields: [benefitId], references: [id], onDelete: Cascade)
+  benefitId String
+  addedAt   DateTime @default(now())
+
+  @@unique([userId, benefitId])
 }

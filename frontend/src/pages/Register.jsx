@@ -35,6 +35,7 @@ export default function Register() {
     setLoading(true);
     try {
       await register(form.name, form.email, form.password);
+      localStorage.setItem('perksly_show_onboarding', 'true');
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Error al registrarse. Intenta de nuevo.');
